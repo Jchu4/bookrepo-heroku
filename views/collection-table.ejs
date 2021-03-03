@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <%- include('head-links') -%>
+    <title>My Collection</title>
+  </head>
+  <body>
+    <%- include('user-navbar') -%>
+
+    <!-- Start of Book Collection Table -->
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <h1 class="my-4">Book List</h1>
+          
+
+          <!-- Start of Table -->
+          <div class="table-responsive">
+            <table class="table">
+              <thead id="blue-palette-bg">
+                <tr>
+                  <th class="align-middle" style="min-width: 100px">
+                    # &nbsp; <%- include('sort-icon') -%>
+                  </th>
+                  <th class="align-middle">Cover</th>
+                  <th class="align-middle" style="width: 400px">
+                    Title &nbsp; <%- include('sort-icon') -%>
+                  </th>
+                  <th class="align-middle" style="width: 600px">
+                    Author &nbsp; <%- include('sort-icon') -%>
+                  </th>
+                  <th class="align-middle" style="width: 300px">
+                    # Notes &nbsp; <%- include('sort-icon') -%>
+                  </th>
+                  <th class="align-middle" style="width: 400px">
+                    Page Completed &nbsp; <%- include('sort-icon') -%>
+                  </th>
+                  <th class="align-middle" style="width: 300px">
+                    Date Added &nbsp; <%- include('sort-icon') -%>
+                  </th>
+                </tr>
+              </thead>
+              <!-- Include Sorting here -->
+
+              <!-- Book data -->
+              <!-- Display each sighting -->
+              <% collectionArr.forEach((book, index) => { %>
+              <tr>
+                <td class="align-middle"><%= index + 1 %></td>
+                <td class="align-middle"><img id="collection-bookcover" src="<%= book.book_cover %>"></td>
+                <td class="align-middle"><a href="/collection/<%=index + 1%>"><%= book.title %></a></td>
+                <td class="align-middle"><%= book.author_names %></td>
+                <td class="align-middle"><%= book.note_counts %></td>
+                <td class="align-middle">
+                  <%= book.pages_completed %> / <%= book.num_pages %>
+                </td>
+                <td class="align-middle font-italic"><%= book.date_added %></td>
+              </tr>
+              <% }) %>
+            </table>
+          </div>
+          <!-- End of Table -->
+        </div>
+      </div>
+    </div>
+
+    <!-- End of Book Collection Table -->
+
+    <%- include('bootstrap-scripts') -%>
+  </body>
+</html>

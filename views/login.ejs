@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <%- include('head-links') -%>
+    <title>Log In</title>
+  </head>
+  <body>
+    <div id="rounded-radius" class="container w-50 my-5 shadow">
+      <div class="row">
+        <div class="col text-center">
+          <img class="logo-icon my-3" src="public/book.png" />
+          <h2 class="mb-3">Book Repo</h2>
+        </div>
+      </div>
+
+      <!-- Start of Log In Form -->
+      <div class="row">
+        <div class="col">
+          <form method="POST" action="/login">
+            <!-- Email -->
+            <div class="form-group whole-input">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                class="form-control shadow-none"
+                id="email"
+                name="email"
+                placeholder="Email"
+              />
+            </div>
+
+            <!-- Password -->
+            <div class="form-group whole-input">
+              <label for="password">Password</label>
+              <input
+                type="password"
+                class="form-control shadow-none"
+                id="password"
+                name="password"
+                placeholder="*******"
+              />
+            </div>
+            <!-- Log In button -->
+            <button
+              id="rounded-radius"
+              type="submit"
+              class="btn btn-dark px-5 mt-2 mb-3"
+            >
+              Log in
+            </button>
+          </form>
+        </div>
+      </div>
+      <!-- End of Log In Form -->
+
+      <!-- Start of Sign Up Prompt -->
+      <div class="row py-3">
+        <div class="col">
+          <p class="text-muted font-weight-light">
+            Don't have an account?
+            <a class="text-muted" href="/"><u>Sign up</u></a>
+          </p>
+        </div>
+      </div>
+      <!-- End of Sign Up Prompt -->
+    </div>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div id="login-bg" class="col"></div>
+      </div>
+    </div>
+
+    <%- include('bootstrap-scripts') -%>
+  </body>
+</html>

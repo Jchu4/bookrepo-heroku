@@ -1,0 +1,93 @@
+/* 1) Root */
+/* Section 1 */
+.library-img {
+  border-radius: 30px;
+  height: 460px;
+  width: auto;
+}
+
+@media (max-width: 767px) {
+  .btn {
+    display: block;
+    width: 75%;
+  }
+}
+
+/* Section 2 */
+#section-two {
+  background-color: #b7c9cf;
+  color: white;
+  height: 500px;
+}
+
+/* 2) Login */
+.logo-icon {
+  height: 48px;
+  width: auto;
+}
+
+#login-bg {
+  background: url(/public/login-book.jpg) no-repeat;
+  height: 800px;
+  width: auto;
+}
+
+/* 3A) Collection */
+#collection-bookcover {
+  height: 180px;
+}
+
+#note-size {
+  width: 700px;
+}
+
+@media (max-width: 767px) {
+  #note-size {
+    width: 320px;
+  }
+}
+
+@media (min-width: 1500px) {
+  #note-size {
+    width: 1200px;
+  }
+}
+
+/* 3B) Collection/:id */
+.form-control {
+  border: 0px !important;
+}
+
+/* 4) Book-ID */
+.users-notes {
+  height: 100%;
+}
+
+/* Branding */
+#blue-palette {
+  color: #b7c9cf;
+}
+
+#blue-palette-bg {
+  background-color: #b7c9cf;
+  color: white;
+}
+
+#rounded-radius {
+  border-radius: 25px;
+}
+
+#remove-focus:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+#white-divide {
+  background: none;
+  border: none;
+  width: 40%;
+  height: 0;
+  border-top: 1px dotted white;
+  border-left: 90px solid transparent;
+  border-right: 90px solid transparent;
+}

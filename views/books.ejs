@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <%- include('head-links') -%>
+  <title>All Books</title>
+</head>
+<body>
+  <!-- KIV: Address the fact that visitors are able to access this section -->
+  <%- include('user-navbar') -%>
+
+    <div class="container w-75 my-4">
+      <h1 class="my-5">Library</h1>
+      <div class="row">
+        <div class="col">
+          <!-- Start of User Collection Masonry-style Book Display (Cover) -->
+          <div class="card-columns">
+            <% allBooksArr.forEach(book => { %>
+            <!-- Book Cover, Title & Description -->
+            <div class="card p-3">
+              <img
+                class="card-img-top shadow"
+                src="<%=book.book_cover%>"
+                alt="<%=book.title%> Book Cover"
+              />
+              <div class="card-body">
+                <h6 class="card-title"><%=book.title%></h6>
+                <p class="my-2 card-text font-weight-light text-truncate">
+                  <%=book.description%>
+                </p>
+                <a href="/books/<%=book.id%>" class="mb-2 mt-5 ">
+                  View More
+                </a>
+              </div>
+            </div>
+            <% }) %>
+          </div>
+          <!-- End of User Collection Book Display (Cover) -->
+        </div>
+      </div>
+    </div>
+
+
+  <%- include('bootstrap-scripts') -%>
+</body>
+</html>
