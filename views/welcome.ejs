@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome</title>
+  <%- include('head-links') -%>
+</head>
+<body>
+  <%- include('visitor-navbar') -%>
+  <div class="container mt-5">
+    <div class="row">
+      <div class="col">
+        <h1> Welcome <%=newUser.user_name%></h1>
+        <h5 class="font-weight-light">Please check your mailbox shortly to confirm your sign up.</h5>
+        <p>Kindly log in after confirming & start browsing <a href="/books">our library</a>!</p>
+        <hr class="my-5">
+      </div>
+    </div>
+  </div>
+
+  <%- include('bootstrap-scripts') -%>
+</body>
+</html>

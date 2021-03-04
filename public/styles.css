@@ -27,9 +27,9 @@
 }
 
 #login-bg {
-  background: url(/public/login-book.jpg) no-repeat;
-  height: 800px;
-  width: auto;
+  background: url(/public/login-book.jpg) no-repeat fixed;
+  background-size: cover;
+  height: 1500px;
 }
 
 /* 3A) Collection */
@@ -54,7 +54,7 @@
 }
 
 /* 3B) Collection/:id */
-.form-control {
+#edit-note.form-control {
   border: 0px !important;
 }
 
@@ -90,4 +90,14 @@
   border-top: 1px dotted white;
   border-left: 90px solid transparent;
   border-right: 90px solid transparent;
+}
+
+#error-bg {
+  background: url(/public/tryagain.jpg) no-repeat fixed;
+  background-size: cover;
+  height: 100%;
+}
+
+.white-bg {
+  background-color: white;
 }

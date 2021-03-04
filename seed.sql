@@ -1,8 +1,8 @@
-INSERT INTO users (user_name, email, created_at)
+INSERT INTO users (user_name, email, password, created_at)
 VALUES 
-  ('James', 'james@test.com', '2021-02-26 23:13:09.390214+08'),
-  ('Peter', 'peter@test.com', '2021-02-26 23:11:35.476832+08'),
-  ('Jerome', 'jerome@test.com', '2021-02-25 22:52:22.305566+08');
+  ('James', 'james@test.com', '625f7fdb99de7de358ab119ead94c29b436764e1bffb3af4f1ca715b692cf155e62007572ce4101fef09a98130369de7a06ccd57903b4c5a9104d1444a02f4a2', '2021-02-26 23:13:09.390214+08'),
+  ('Peter', 'peter@test.com', '1756200d020e803f70ca4ebbd2eeb3ac4d2418724120dc8cb2226d73805a261483686ec9cb4dde1a256ffcfaa0a275b9a6893738133b47f37a853ca21056a8e0', '2021-02-26 23:11:35.476832+08'),
+  ('Jerome', 'jerome@test.com', '7ef6d7c225edda57aa6aef8c3ebf70b7b7822a9d9d18060b326985b0b64f26bd082e9529c5dd2fadc17fd98bf82662293f8d35dd78dbc53d07a213badf1ccf8f', '2021-02-25 22:52:22.305566+08');
 
 
 INSERT INTO collection (user_id, book_id, user_cover, num_pages, pages_completed, date_added, date_completed)
