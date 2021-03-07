@@ -9,10 +9,14 @@
 </head>
 <body>
   <!-- KIV: Address the fact that visitors are able to access this section -->
+  <% if (userId) { %>
   <%- include('user-navbar') -%>
+  <% } else { %>
+  <%- include('visitor-navbar') -%>
+  <% } %>
 
     <div class="container w-75 my-4">
-      <h1 class="my-5">Library</h1>
+      <h1 class="my-5">Browse Library</h1>
       <div class="row">
         <div class="col">
           <!-- Start of User Collection Masonry-style Book Display (Cover) -->
@@ -41,7 +45,6 @@
         </div>
       </div>
     </div>
-
 
   <%- include('bootstrap-scripts') -%>
 </body>

@@ -83,18 +83,17 @@ const checkAuth = (req, res, next) => {
   next();
 };
 
-
-// /Root - GET Request. []. 
+// /Root - GET Request. [Ad Page to prompt user to sign up (if not logged in)]. 
 app.get('/', (req, res) => {
   console.log('/ root GET request came in! ---')
   
   // If user is logged-in, redirect to another page.
   const { userId } = req.cookies;
 
-  res.render('root')
+  res.render('root', { userId })
 });
 
-// Signup - POST Request. [Accept a POST request to create a user.]
+// Signup - POST Request. [Accept a POST request to create a user].
 app.post('/signup', (req, res) => {
   console.log('/signup POST request came in!');
 
@@ -146,13 +145,12 @@ app.post('/login', (req, res) => {
 
       // When email does not exist in DB.
       if (result.rows.length === 0) {
-        res.status(403).send('login failed! --');
+        res.status(403).render('error');
         return;
       }
 
       // Get user record from result.
       const user = result.rows[0];
-      console.log('mr speaker', user);
 
       // Generate hashed password from what was keyed in log-in form.
       const shaPassword = new jsSHA('SHA-512', 'TEXT', { encoding: 'UTF8' });
@@ -160,7 +158,7 @@ app.post('/login', (req, res) => {
       const hashedPassword = shaPassword.getHash('HEX');
 
       if (user.password !== hashedPassword) {
-        res.status(403).send('Login Failed :( --');
+        res.status(403).render('error');
         return;
       }
 
@@ -181,9 +179,20 @@ app.post('/login', (req, res) => {
     })
 });
 
+// Logout - POST Request. [Log user out by deleting cookies].
+app.delete('/logout', (req, res) => {
+  console.log('/logout DELETE request came in');
+
+  res.clearCookie('userId');
+  res.clearCookie('loggedInHash');
+
+  res.redirect('/')
+});
+
 // (Universal) Books - GET Request. [Render a list of entire database of books].
 app.get('/books', (req, res) => {
   console.log('/books GET request came in!')
+  const { userId } = req.cookies;
   const allBooksQuery = `
   WITH bookauthors AS (
     SELECT authors.author_name, book_authors.book_id, authors.id
@@ -216,7 +225,7 @@ app.get('/books', (req, res) => {
       console.log('allBooksQuery results: --- ', result.rows);
       const allBooksArr = result.rows;
 
-      res.render('books', { allBooksArr })
+      res.render('books', { allBooksArr, userId })
     })
     .catch(err => console.log('/books GET request Query Error', err));
 });
@@ -320,7 +329,7 @@ app.post('/books/:id', (req, res) => {
 
 // Collection - GET Request. [Render list of user's collected books].
 app.get('/collection', checkAuth, (req, res) => {
-  console.log('/collection GET request came in! ---')
+  console.log('/collection/ GET request came in! ---')
 
   // Redirect user if not logged in.
   if (req.isUserLoggedIn === false) {
@@ -330,54 +339,119 @@ app.get('/collection', checkAuth, (req, res) => {
 
   const { view } = req.query;
   const { userId } = req.cookies;
+  let collectionArr, booksAuthors, noteCounts;
 
-  const userCollectionQuery = `
-  WITH bookauthors AS (
-    SELECT 
-      book_authors.book_id,
-      STRING_AGG(DISTINCT authors.author_name, ', ') AS author_names                              
-    FROM book_authors                                                                           
-    INNER JOIN authors ON book_authors.author_id = authors.id                               
-    GROUP BY book_authors.book_id
-  ),
+  const collectionQuery = `
+  SELECT *
+  FROM collection
+  WHERE user_id = ${userId}
+  `
 
-  notecount AS (
-    SELECT 
-      DISTINCT notes.book_id, notes.user_id, 
-      COUNT(notes.description) note_counts
-    FROM notes
-    GROUP BY 1, 2
-    HAVING user_id = $1
-    ORDER BY 1
-  )
+  pool.query(collectionQuery)
+    .then(collectionResult => { 
+      collectionArr = collectionResult.rows;
 
-  SELECT
-    users.id user_id,
-    users.user_name, 
-    collection.user_cover,
-    collection.num_pages,
-    collection.pages_completed,
-    collection.date_added,
-    books.id book_id,
-    books.title,
-    books.description,
-    books.book_cover,
-    bookauthors.author_names,
-    notecount.note_counts
-  FROM users
-  INNER JOIN collection ON users.id = collection.user_id
-  INNER JOIN books ON collection.book_id = books.id 
-  INNER JOIN bookauthors ON books.id = bookauthors.book_id
-  LEFT JOIN notecount ON books.id = notecount.book_id
-  WHERE users.id = $1
-  `;
-  
-  pool
-    .query(userCollectionQuery, [ userId ])
-    .then(result => {
-      console.log('userCollectionQuery results: ---', result.rows);
-      const collectionArr = result.rows;
+      // Create an array of book_ids which will go in the next query.
+      const bookIdArr = collectionArr.map(book => book.book_id)
+                                                         
+      const bookQuery = `
+      SELECT 
+        books.id AS book_id,
+        books.book_cover,
+        books.title,
+        books.description,
+        book_authors.author_id
+      FROM books 
+      INNER JOIN book_authors ON books.id = book_authors.book_id
+      WHERE books.id IN (${[...bookIdArr]})
+      `;
+    
+      return pool.query(bookQuery)
+    })
+    .then(booksResult => {
+      const collectionAuthors = booksResult.rows;
+
+      // Create an array of author_ids from the bookQuery in previous query.
+      const authorIds = collectionAuthors.map(author => author.author_id);
+
+      const bookAuthorsQuery = `
+      SELECT 
+        book_authors.book_id,
+        authors.author_name
+      FROM book_authors                                                                           
+      INNER JOIN authors ON book_authors.author_id = authors.id                               
+      WHERE book_authors.author_id IN (${[...authorIds]})
+      `;
+
+      return pool.query(bookAuthorsQuery)
+    })
+    .then(bookAuthorsResult => { 
+
+      booksAuthors = bookAuthorsResult.rows;
+      const authorNames = {};
+
+      for (let i = 0; i < booksAuthors.length; i += 1) {
+        const booksAuthor = booksAuthors[i];
+
+        if (!authorNames[booksAuthor.book_id]) {
+          authorNames[booksAuthor.book_id] = [];
+        } 
+        authorNames[booksAuthor.book_id].push(booksAuthor.author_name);
+      }
+
+      // Return newly formed authorNames 
+      for (let i = 0; i < collectionArr.length ; i ++) {
+        // Create new key (author_names), with values (array of authors) from authorNames object.
+        collectionArr[i].author_names = authorNames[collectionArr[i].book_id];
+      }
       
+      const noteCountsQuery = `
+       SELECT 
+        DISTINCT book_id, 
+        user_id, 
+        COUNT(description) note_counts
+      FROM notes
+      GROUP BY 1, 2
+      HAVING user_id = $1
+      ORDER BY 1`;
+
+      return pool.query(noteCountsQuery, [userId]);
+    })
+    .then(noteCountsResult => {
+      noteCounts = noteCountsResult.rows;
+      const bookIds = collectionArr.map(book => book.book_id);
+
+      const bookInfoQuery = `
+      SELECT *
+      FROM books
+      WHERE id IN (${bookIds})
+      ` 
+      return pool.query(bookInfoQuery)
+    })
+    .then(bookInfoResult => {
+      const bookInfo = bookInfoResult.rows;
+
+      // Add respective book info to the user's collection.
+      for (let i = 0; i < collectionArr.length; i++) {
+        for (let j = 0; j < bookInfo.length; j++) {
+          if (bookInfo[j].id === collectionArr[i].book_id) {
+            collectionArr[i].user_cover = bookInfo[j].book_cover
+            collectionArr[i].title = bookInfo[j].title
+            collectionArr[i].description = bookInfo[j].description
+          }
+        }
+      }
+      
+      // Add note counts to respective book_ids.
+      for (let i = 0 ; i < collectionArr.length; i++) {
+          collectionArr[i].note_counts = 0;
+        for (let j = 0; j < noteCounts.length; j++) {
+          if (collectionArr[i].book_id === noteCounts[j].book_id) {
+            collectionArr[i].note_counts = Number(noteCounts[j].note_counts);
+          }
+        }
+      }
+
       // Convert datetime to Moment string.
       collectionArr.forEach(bookListing => {
         bookListing.date_added = momentFromNow(bookListing.date_added);
@@ -388,10 +462,38 @@ app.get('/collection', checkAuth, (req, res) => {
         res.render('collection-cover', { collectionArr });
       // 2nd view: Book in Table List format
       } else {
+        // res.send(collectionArr);
         res.render('collection-table', { collectionArr });
       }
     })
-    .catch(err => console.log("userCollectionQuery Error: ---", err.stack));
+    .catch(err => {
+      res.render('empty-collection-table');
+    })
+  });
+
+// Collection - DELETE Request. [Delete book from collection list].
+app.delete('/collection/:id', (req, res) => {
+  console.log('/collection/:id DELETE request came in!');
+
+  const { userId } = req.cookies;
+  const bookId = req.params.id;
+
+  console.log('EHHH book_id ----:', bookId);
+
+  const deleteBookQuery = `
+  DELETE FROM collection
+  WHERE user_id = $1 
+  AND book_id = $2
+  RETURNING *
+  `
+
+  const values = [userId, bookId]
+
+  pool.query(deleteBookQuery, values)
+    .then(deletedBookResult => {
+      res.redirect(`/collection`)
+    })
+    .catch(err => console.log('/collection/:id DELETE request err', err));
 });
 
 // Collection/:id - GET Request. [Render one of user's books along with it's user cover & user notes].
@@ -405,7 +507,6 @@ app.get('/collection/:id', checkAuth, (req, res) => {
   }
 
   let { userId } = req.cookies;
-  // userId = 2;
   const { id } = req.params;
 
   const singleBookQuery = `
@@ -444,13 +545,15 @@ app.get('/collection/:id', checkAuth, (req, res) => {
       books.title,
       books.description,
       userscollection.book_rank,
+      userscollection.num_pages,
+      userscollection.pages_completed,
       STRING_AGG(DISTINCT bookauthors.author_name, ', ') authors_names,
       STRING_AGG(DISTINCT bookgenres.genre_name, ', ') genres_names
     FROM books
     INNER JOIN bookauthors ON books.id = bookauthors.book_id
     INNER JOIN bookgenres ON books.id = bookgenres.book_id
     INNER JOIN userscollection ON books.id = userscollection.book_id
-    GROUP BY 1,2,3,4,5
+    GROUP BY 1,2,3,4,5,6,7
     HAVING userscollection.book_rank = $1
     `;
 
@@ -474,7 +577,9 @@ app.get('/collection/:id', checkAuth, (req, res) => {
         }
 
       const userNotesArr = notesQueryResult.rows;
-      console.log("userNotes: ----", userNotesArr);
+
+      // Pass in the pages completed perecentage.
+      singleBook.pct_complete = Math.round((singleBook.pages_completed / singleBook.num_pages) * 100);
 
       res.render('collection-id', { singleBook, userNotesArr })
     });
@@ -483,10 +588,10 @@ app.get('/collection/:id', checkAuth, (req, res) => {
 
 // Collection/:id - PUT Request. [Update user cover].
 app.put('/collection/:id', multerUpload.single('usercover'), (req, res) => {
+  console.log('/collection/:id PUT request came in! ---')
 
   let collectionBookId = req.params.id;
   let { userId } = req.cookies;
-  userId = 2;
 
   // Have to find a way to upload the user_cover to the book_id.
   const insertCoverQuery = `
@@ -508,13 +613,42 @@ app.put('/collection/:id', multerUpload.single('usercover'), (req, res) => {
    .query(insertCoverQuery, [req.file.filename])
    .then(result => {
       const insertCoverResults = result.rows;
-      console.log('insertCoverQuery results: ---', insertCoverResults )
+      console.log('insertCoverQuery results: ---', insertCoverResults)
     })
    .catch(err => { 
      res.status(503).send('Please try again :(');
      console.log('/collection/:id POST Request query error: ---', err)
-
    });
+});
+
+// Collection/:book_id/pages - PUT Request. [Update page info of a book in user collection].
+app.put('/collection/:book_id/pages', (req, res) => {
+
+  console.log('/collection/:id/pages PUT request came in! ---')
+
+  const { book_id } = req.params;
+  const { userId } = req.cookies;
+  const { pagesCompleted, totalPages } = req.body;
+
+  const updatePagesQuery = `
+  UPDATE collection 
+  SET 
+    num_pages = $1, 
+    pages_completed = $2
+  WHERE user_id = $3 AND book_id = $4
+  RETURNING *
+  `
+  const values = [totalPages, pagesCompleted, userId, book_id]
+
+  pool
+    .query(updatePagesQuery, values)
+    .then(pagesResult => {
+      console.log('updatePagesQuery result: ---', pagesResult.rows)
+
+      res.redirect('/collection');
+    })
+    .catch(err => console.log('/collection/:id/pages PUT request error: --', err.stack))
+
 });
 
 // Notes/:book_id/:bookrank_id - POST Request. [Insert new note for user].
@@ -536,9 +670,9 @@ app.post('/notes/:book_id/:bookrank_id', (req, res) => {
     if (err) {
       console.log('insertNotesQuery error: ---', err)
     }
-    console.log('insertNotesQuery resuults: ---', result.rows)
+    console.log('insertNotesQuery results: ---', result.rows)
 
-    res.redirect(`/collection/${bookrank_id}`)
+    res.redirect(`/collection/${bookrank_id}#my-notes`)
   });
 });
 
@@ -558,7 +692,7 @@ app.delete('/notes/:note_id/:bookrank_id', (req, res) => {
     .query(deleteNoteQuery)
     .then(result => {
       console.log('Note sucessfully deleted.');
-      res.redirect(`/collection/${bookrank_id}`)
+      res.redirect(`/collection/${bookrank_id}#my-notes`)
     })
     .catch(err => console.log('notes/:note_id DELETE error: ---', err));
 });
@@ -582,7 +716,7 @@ app.put('/notes/:note_id/:bookrank_id', (req, res) => {
     .query(editNoteQuery, values)
     .then(result => {
       console.log('editNoteQuery results: ---', result.rows);
-      res.redirect(`/collection/${bookrank_id}`);
+      res.redirect(`/collection/${bookrank_id}#my-notes`);
     })
     .catch(err => console.log('editNoteQuery error: ---', err));
 });

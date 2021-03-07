@@ -17,7 +17,7 @@
 #section-two {
   background-color: #b7c9cf;
   color: white;
-  height: 500px;
+  height: 100%;
 }
 
 /* 2) Login */
@@ -68,6 +68,10 @@
   color: #b7c9cf;
 }
 
+#pbar {
+  background-color: #b7c9cf;
+}
+
 #blue-palette-bg {
   background-color: #b7c9cf;
   color: white;
@@ -95,9 +99,19 @@
 #error-bg {
   background: url(/public/tryagain.jpg) no-repeat fixed;
   background-size: cover;
-  height: 100%;
+  height: 1200px;
+  color: white;
+}
+
+.error {
+  text-shadow: 2px 2px 5px darkgrey;
 }
 
 .white-bg {
   background-color: white;
+}
+
+#edit-pages-input {
+  width: 120px;
+  border-radius: 18px;
 }

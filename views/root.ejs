@@ -8,12 +8,19 @@
     <title>Book Repo</title>
   </head>
   <body>
-    <%- include('visitor-navbar') -%>
+
+      <% if (userId) { %>
+      <%- include('user-navbar') -%>
+      <% } else { %>
+      <%- include('visitor-navbar') -%>
+      <% } %>
+
+
     <div class="container-fluid my-5 w-75">
       <!-- Start of Section 1 -->
       <div class="row mt-4">
         <div class="col text-center my-auto px-5">
-          <h1>Never Lose Track Of What You Are Reading Anymore</h1>
+          <h1>Never Lose Track Of What You Read Anymore</h1>
           <h4 class="lead py-3">Notes For Every Book.</h4>
           <!-- Start of Modal -->
           <!-- Modal Button Trigger -->
@@ -159,7 +166,12 @@
           </div>
         </div>
         <div class="col d-flex justify-content-center my-5 pl-3">
-          <img class="library-img shadow-sm" src="/public/library.jpg" />
+          <picture>
+            <source media="(min-width: 1600px)" class="library-img shadow-sm" srcset="/public/library-landscape.jpg">
+            <source media="(min-width: 992px)" class="library-img shadow-sm" srcset="/public/library.jpg">
+            <source media="(min-width: 710px)" class="library-img shadow-sm" srcset="/public/library-landscape.jpg">
+            <img class="library-img shadow-sm" src="/public/library.jpg" />
+          </picture>
         </div>
       </div>
     </div>
@@ -169,60 +181,82 @@
     <div id="section-two" class="container-fluid">
       <!-- Header -->
       <div class="row pt-5 mt-5">
-        <div class="col text-center mt-4">
-          <h2>Here's How it Works.</h2>
+        <div class="col text-center mt-3">
+          <h2 id="how-it-works">Here's How it Works.</h2>
         </div>
       </div>
       <!-- 3 Icons -->
-      <div class="row py-5">
-        <div class="col d-flex justify-content-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="48"
-            height="48"
-            fill="currentColor"
-            class="bi bi-book mx-5"
-            viewBox="0 0 16 16"
-          >
-            <path
-              d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811V2.828zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492V2.687zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z"
-            />
-          </svg>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="48"
-            height="48"
-            fill="currentColor"
-            class="bi bi-journal-text mx-5"
-            viewBox="0 0 16 16"
-          >
-            <path
-              d="M5 10.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5zm0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5z"
-            />
-            <path
-              d="M3 0h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-1h1v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v1H1V2a2 2 0 0 1 2-2z"
-            />
-            <path
-              d="M1 5v-.5a.5.5 0 0 1 1 0V5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1zm0 3v-.5a.5.5 0 0 1 1 0V8h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1zm0 3v-.5a.5.5 0 0 1 1 0v.5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1z"
-            />
-          </svg>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="48"
-            height="48"
-            fill="currentColor"
-            class="bi bi-lightbulb mx-5"
-            viewBox="0 0 16 16"
-          >
-            <path
-              d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a1.964 1.964 0 0 0-.453-.618A5.984 5.984 0 0 1 2 6zm6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1z"
-            />
-          </svg>
+      <div class="row mb-5 py-4">
+        <div class="col mx-4">
+          <div class="row d-flex justify-content-center">
+            <div class="col-sm-12 col-md-4">
+              <div class="col-12 text-center">
+                <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="48"
+                height="48"
+                fill="currentColor"
+                class="bi bi-book mx-5 mt-4"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811V2.828zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492V2.687zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z"
+                />
+              </svg>
+              <div class="col-12 mt-4 text-center">
+                <p class="lead">Add book to your collection</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-12 col-md-4" >
+            <div class="col-12 text-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="48"
+                height="48"
+                fill="currentColor"
+                class="bi bi-journal-text mx-5 mt-4"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M5 10.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5zm0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5z"
+                />
+                <path
+                  d="M3 0h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-1h1v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v1H1V2a2 2 0 0 1 2-2z"
+                />
+                <path
+                  d="M1 5v-.5a.5.5 0 0 1 1 0V5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1zm0 3v-.5a.5.5 0 0 1 1 0V8h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1zm0 3v-.5a.5.5 0 0 1 1 0v.5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1z"
+                />
+              </svg>
+              </div>
+              <div class="col-12 mt-4 text-center">
+               <p class="lead">Store notes per book in collection</p>
+              </div>
+          </div>
+          <div class="col-sm-12 col-md-4">
+            <div class="col-12 text-center">
+               <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="48"
+              height="48"
+              fill="currentColor"
+              class="bi bi-lightbulb mx-5 mt-4"
+              viewBox="0 0 16 16"
+              >
+              <path
+                  d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a1.964 1.964 0 0 0-.453-.618A5.984 5.984 0 0 1 2 6zm6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1z"
+                />
+              </svg>
+            </div>
+            <div class="col-12 mt-4 mb-5 text-center">
+              <p class="lead">Reflect on notes in context to gain deeper insights</p>
+            </div>
+          </div>
+        </div>
         </div>
       </div>
     </div>
     <!-- End of Section 2 -->
-
     <%- include('bootstrap-scripts') -%>
   </body>
 </html>

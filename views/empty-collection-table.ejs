@@ -15,8 +15,6 @@
       <div class="row">
         <div class="col">
           <h1 class="my-4">Book List</h1>
-          
-
           <!-- Start of Table -->
           <div class="table-responsive">
             <table class="table">
@@ -50,32 +48,30 @@
 
               <!-- Book data -->
               <!-- Display each sighting -->
-              <% collectionArr.forEach((book, index) => { %>
-                <form method="POST" action="/collection/<%=book.book_id%>?_method=DELETE">
               <tr>
-                <td class="align-middle"><%= index + 1 %></td>
-                <td class="align-middle"><img id="collection-bookcover" src="<%= book.user_cover %>" class="shadow-sm"></td>
-                <td class="align-middle"><a href="/collection/<%=index + 1%>"><%= book.title %></a></td>
-                <td class="align-middle"><%= book.author_names %></td>
-                <td class="align-middle"><%= book.note_counts %></td>
-                <td class="align-middle"><%= book.pages_completed %> / <%= book.num_pages %></td>
-                <td class="align-middle font-italic"><%= book.date_added %></td>
-                <!-- Start of Delete Button -->
-                <td class="align-middle pl-4">
-                  <button type="submit" class="btn""><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-                  <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-                  <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-                 </svg></button>
-                </td>
-                 <!-- End of Delete Button -->
-                 </form>
+                <td class="align-middle"></td>
+                <td class="align-middle"></td>
+                <td class="align-middle"></td>
+                <td class="align-middle"></td>
+                <td class="align-middle"></td>
+                <td class="align-middle"></td>
+                <td class="align-middle"></td>
+                <td class="align-middle"></td>
               </tr>
-              <% }) %>
             </table>
           </div>
           <!-- End of Table -->
+
         </div>
       </div>
+
+      <!-- Display empty message -->
+      <div class="row mt-3">
+        <div class="col">
+         <h5 class="lead text-center text-muted font-italic">Your collection is empty! Add more books <a href="/books">here</a>.</h5>
+        </div>
+      </div>
+
     </div>
 
     <!-- End of Book Collection Table -->
