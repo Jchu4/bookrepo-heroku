@@ -320,8 +320,6 @@ app.post('/books/:id', (req, res) => {
     })
     .then(result => { 
       console.log("Added to colletion table SUCCESS.")
-      console.log('insertCollectionQuery results: ---', result.rows);
-
       res.redirect(`/books/${bookId}`);
     })
     .catch(err =>  console.log('/books/:id query errror: ---', err));
@@ -527,7 +525,6 @@ app.get('/collection/:id', checkAuth, (req, res) => {
         users.user_name,
         users.id user_id,
         RANK() OVER (ORDER BY book_id ASC) AS book_rank,
-        collection.id AS realbookrank,
         collection.book_id,
         collection.user_cover,
         collection.num_pages,
@@ -564,6 +561,7 @@ app.get('/collection/:id', checkAuth, (req, res) => {
       }
     
     const singleBook = singleBookQueryResult.rows[0];
+    console.log('sgb', singleBook);
 
     const notesQuery = `
     SELECT * FROM notes
@@ -572,9 +570,9 @@ app.get('/collection/:id', checkAuth, (req, res) => {
     `;
 
     pool.query(notesQuery, (notesQueryErr, notesQueryResult) => {
-        if (notesQueryErr) {
-          console.log('/collection/:id GET request notesQueryErr', notesQueryErr);
-        }
+      if (notesQueryErr) {
+        console.log('/collection/:id GET request notesQueryErr', notesQueryErr);
+      }
 
       const userNotesArr = notesQueryResult.rows;
 
@@ -622,11 +620,11 @@ app.put('/collection/:id', multerUpload.single('usercover'), (req, res) => {
 });
 
 // Collection/:book_id/pages - PUT Request. [Update page info of a book in user collection].
-app.put('/collection/:book_id/pages', (req, res) => {
+app.put('/collection/:book_id/:bookrank_id', (req, res) => {
 
   console.log('/collection/:id/pages PUT request came in! ---')
 
-  const { book_id } = req.params;
+  const { book_id, bookrank_id } = req.params;
   const { userId } = req.cookies;
   const { pagesCompleted, totalPages } = req.body;
 
@@ -645,7 +643,7 @@ app.put('/collection/:book_id/pages', (req, res) => {
     .then(pagesResult => {
       console.log('updatePagesQuery result: ---', pagesResult.rows)
 
-      res.redirect('/collection');
+      res.redirect(`/collection/${bookrank_id}`); 
     })
     .catch(err => console.log('/collection/:id/pages PUT request error: --', err.stack))
 
