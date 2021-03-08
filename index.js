@@ -39,7 +39,7 @@ const multerUpload = multer({ dest: 'uploads/' });
 // Init Express.
 const app = express();
 const PORT = process.argv[2];
-const SALT = 'local';
+const SALT = process.env['SALT'];
 
 // Configure Express settings.
 app.set('view engine', 'ejs'); // Set view engine for 'ejs' templates.
@@ -87,8 +87,12 @@ const checkAuth = (req, res, next) => {
 app.get('/', (req, res) => {
   console.log('/ root GET request came in! ---')
   
-  // If user is logged-in, redirect to another page.
   const { userId } = req.cookies;
+
+  // If user is logged-in, redirect to collection page.
+  if (userId) {
+    res.redirect('/collection');
+  }
 
   res.render('root', { userId })
 });
