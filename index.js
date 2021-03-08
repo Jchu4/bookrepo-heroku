@@ -627,7 +627,7 @@ app.post('/collection/:id/:bookrank_id', multerUpload.single('usercover'), (req,
 });
 
 // Collection/:book_id/pages - PUT Request. [Update page info of a book in user collection].
-app.post('/collection/:id/:bookrank_id/pages', (req, res) => {
+app.put('/collection/:id/:bookrank_id/pages', (req, res) => {
 
   console.log('/collection/:id/:bookrank_id/pages PUT request came in! ---')
 
