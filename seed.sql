@@ -22,14 +22,22 @@ INSERT INTO notes (user_id, description, book_id, private, date)
 VALUES 
   (1, 'Everyone individual has thier own journey, there is no silver bullet answer to move forward.', 13, 'false', '2020-12-02'),
   (1, 'If unregenerated, it is just impossible', 12, 'true', '2019-11-12'),
+  (1, 'To become great at what you do, it boils down to who can handle the mundane of training everyday to gain mastery.', 6, 'false', '2019-12-12'),
+  (1, 'No habit stays interesting forever', 6, 'false', '2019-11-14'),
+  (1, 'Learn to help yourself, so you can help others effectively.', 1, 'false', '2020-12-02'),
+  (1, 'Food can pale in comparison in due time..', 11, 'false', '2019-11-12'),
+  (1, 'Disagreed with some of the methods Kissinger employed, here is why.. ', 2, 'false', '2019-12-12'),
   (2, 'Retrieval - recalling what you’ve learnt through thinking about it', 5, 'false', '2019-12-12'),
   (2, 'Generation - basically the feynman technique, and also thinking about how you could do things differently', 5, 'false', '2019-12-12'),
   (2, 'Eleboration - connecting what you learnt to something you already know and understand', 5, 'false', '2019-12-12'),
   (2, 'Did not know Snowden could write so well..', 7, 'true', '2020-12-30'),
-  (2, 'Blibliotherapy: reading books as a form of therapy. Amazing.', 10, 'true', '2021-02-20'),
+  (2, 'What are some one-time habits to lock down what I want to achieve?', 6, 'true', '2019-11-12'),
+  (2, 'Make it obvious. Make it attrative. Make it easy. Make it Satisfying.', 6, 'true', '2019-11-14'),
+  (2, 'Make it invisible. Make it unattractive. Make it difficult. Make it unsatisfying.', 6, 'true', '2019-11-16'),
   (3, 'Federer Vs Woods, the story of a generalist before specialising and a speciliaser since young.', 3, 'false', '2020-11-18'),
   (3, 'Interleaving forces one to be on ones toes leaving room for imagination of different scenarios.', 5, 'false', '2020-01-18'),
-  (3, 'Chain your desired habits to pre-existing ones.', 6, 'true', '2019-09-21');
+  (3, 'Chain your desired habits to pre-existing ones.', 6, 'true', '2019-10-21'),
+  (3, 'Maximum motivation occurs when facing a challenge of just manageable difficulty.', 6, 'true', '2019-09-21')  ;
 
 
 INSERT INTO books (book_cover, title, description)

@@ -253,7 +253,7 @@ app.get('/books/:id', (req, res) => {
       FROM genres 
       INNER JOIN book_genres ON genres.id = book_genres.genre_id
     )
-    
+
     SELECT 
       books.id,
       books.book_cover,
@@ -271,6 +271,8 @@ app.get('/books/:id', (req, res) => {
   pool.query(singleBookQuery, [id], (err , result) => {
     if (err) {
       console.log('/books/:id GET request singleBookQuery Error', err);
+      res.status(503);
+      return;
     }
 
     console.log('singleBookQuery results: ---', result.rows);
@@ -285,12 +287,31 @@ app.get('/books/:id', (req, res) => {
     pool.query(checkBookExistsQuery, [userId, id], (checkBookExistsQueryErr, checkBookExistsQueryResult) => {
       if (checkBookExistsQueryErr) {
         console.log('/books/:id GET request checkBookExistsQuery error', checkBookExistsQueryErr);
+        res.status(503);
+        return;
        }
 
       const bookExistsArr = checkBookExistsQueryResult.rows;
 
-      res.render('books-id', { singleBook, bookExistsArr }) 
-     
+      const notesQuery = `
+      SELECT 
+        description,
+        private
+      FROM notes
+      WHERE private = false AND book_id = $1
+      `;
+      
+      pool.query(notesQuery, [id], (notesQueryErr, notesQueryResult) => {
+        if (notesQueryErr) {
+          console.log('/books/:id GET request notesQueryErr error', notesQueryErr);
+          res.status(503);
+          return;
+       }
+
+      const publicNotes = notesQueryResult.rows;
+
+        res.render('books-id', { singleBook, bookExistsArr, publicNotes }) 
+      }) 
     });
   });
 });
@@ -568,10 +589,10 @@ app.get('/collection/:id', checkAuth, (req, res) => {
       }
     
     const singleBook = singleBookQueryResult.rows[0];
-    console.log(singleBook);
 
     const notesQuery = `
-    SELECT * FROM notes
+    SELECT * 
+    FROM notes
     WHERE user_id = $1 AND book_id = $2
     ORDER BY id DESC;
     `;
@@ -584,6 +605,7 @@ app.get('/collection/:id', checkAuth, (req, res) => {
       }
 
       const userNotesArr = notesQueryResult.rows;
+      console.log("WOOOW LOOK AT THE NOTES", userNotesArr);
 
       // Pass in the pages completed perecentage.
       singleBook.pct_complete = Math.round((singleBook.pages_completed / singleBook.num_pages) * 100);
@@ -711,15 +733,21 @@ app.put('/notes/:note_id/:bookrank_id', (req, res) => {
   console.log('notes/:note_id/:bookrank_id PUT request came in!')
 
   const { note_id, bookrank_id } = req.params;
-  const { editNoteDescription } = req.body;
-  const values = [ editNoteDescription, note_id ];
+  let { editNoteDescription, makePublic } = req.body;
+
+  // If makePublic was an array, means user chose to make the note public.
+  (Array.isArray(makePublic) === false) ? makePublic = true : makePublic = false
 
   const editNoteQuery = `
   UPDATE notes
-  SET description = $1
-  WHERE id = $2
+  SET 
+    description = $1, 
+    private = $2
+  WHERE id = $3
   RETURNING *
   `
+
+  const values = [ editNoteDescription, makePublic, note_id ];
 
   pool
     .query(editNoteQuery, values)

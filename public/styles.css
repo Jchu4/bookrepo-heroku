@@ -119,3 +119,7 @@
   width: 120px;
   border-radius: 18px;
 }
+
+#edit-note-btn.btn {
+  width: 5%;
+}
