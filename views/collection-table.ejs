@@ -47,16 +47,22 @@
                 </tr>
               </thead>
 
-              <!--  Sorting logic -->
-              <% console.log('in ejs: ----',collectionArr) %>
+              <!--  Sort by date added (same as book_rank) -->
+              <% collectionArr.sort((a, b) => (a.book_rank > b.book_rank) ? 1 : -1) %>
+             <!--  Sort by Title -->
+
 
               <!-- Book data -->
               <!-- Display each sighting -->
               <% collectionArr.forEach((book, index) => { %>
-                <form method="POST" action="/collection/<%=book.book_id%>?_method=DELETE">
+                <form method="POST" action="/collection/<%=book.book_id%>?_method=DELETE" >
               <tr>
                 <td class="align-middle"><%= index + 1 %></td>
-                <td class="align-middle"><img id="collection-bookcover" src="<%= book.user_cover %>" class="shadow-sm"></td>
+                <% if (book.user_cover.includes("http")) { %>
+                  <td class="align-middle"><img id="collection-bookcover" src="<%= book.user_cover %>" class="shadow-sm"></td>
+                <% } else {  %>
+                  <td class="align-middle"><img id="collection-bookcover" src="/uploads/<%=book.user_cover%>" class="shadow-sm" /></td>
+                <% }  %>
                 <td class="align-middle"><a href="/collection/<%=index + 1%>"><%= book.title %></a></td>
                 <td class="align-middle"><%= book.author_names %></td>
                 <td class="align-middle"><%= book.note_counts %></td>

@@ -34,7 +34,7 @@ if (process.env.ENV === 'PRODUCTION') {
 // Create new Pool with above conditions.
 const pool = new Pool(poolConfigs);
 // Set name of upload directory.
-const multerUpload = multer( { dest: 'uploads/' });
+const multerUpload = multer({ dest: 'uploads/' });
 
 // Init Express.
 const app = express();
@@ -44,7 +44,7 @@ const SALT = 'local';
 // Configure Express settings.
 app.set('view engine', 'ejs'); // Set view engine for 'ejs' templates.
 app.use('/public', express.static('public')); // Retrieve static files from `public`.
-app.use(express.static('uploads')); // Retrieve static files from `uploads`.
+app.use('/uploads', express.static('uploads')); // Retrieve static files from `uploads`.
 app.use(express.urlencoded({ extended : false })); // Set up our middleware to parse POST data.
 app.use(methodOverride('_method')); // Enable PUT/DELETE headers to be sent in requests.
 app.use(cookieParser()); // Configure usage of cookie-parser.
@@ -340,7 +340,7 @@ app.get('/collection', checkAuth, (req, res) => {
   let collectionArr, booksAuthors, noteCounts;
 
   const collectionQuery = `
-  SELECT *
+  SELECT * , RANK() OVER (ORDER BY id ASC) AS book_rank
   FROM collection
   WHERE user_id = ${userId}
   `
@@ -428,12 +428,13 @@ app.get('/collection', checkAuth, (req, res) => {
     })
     .then(bookInfoResult => {
       const bookInfo = bookInfoResult.rows;
+      console.log('bookie', bookInfo)
 
       // Add respective book info to the user's collection.
       for (let i = 0; i < collectionArr.length; i++) {
         for (let j = 0; j < bookInfo.length; j++) {
           if (bookInfo[j].id === collectionArr[i].book_id) {
-            collectionArr[i].user_cover = bookInfo[j].book_cover
+            collectionArr[i].book_cover = bookInfo[j].book_cover
             collectionArr[i].title = bookInfo[j].title
             collectionArr[i].description = bookInfo[j].description
           }
@@ -524,7 +525,7 @@ app.get('/collection/:id', checkAuth, (req, res) => {
       SELECT 
         users.user_name,
         users.id user_id,
-        RANK() OVER (ORDER BY book_id ASC) AS book_rank,
+        RANK() OVER (ORDER BY collection.id ASC) AS book_rank,
         collection.book_id,
         collection.user_cover,
         collection.num_pages,
@@ -533,7 +534,7 @@ app.get('/collection/:id', checkAuth, (req, res) => {
         collection.date_completed
       FROM users
       INNER JOIN collection ON users.id = collection.user_id
-      WHERE users.id = ${userId}
+      WHERE users.id = $1
     )
     
     SELECT 
@@ -541,6 +542,7 @@ app.get('/collection/:id', checkAuth, (req, res) => {
       books.book_cover,
       books.title,
       books.description,
+      userscollection.user_cover,
       userscollection.book_rank,
       userscollection.num_pages,
       userscollection.pages_completed,
@@ -550,28 +552,31 @@ app.get('/collection/:id', checkAuth, (req, res) => {
     INNER JOIN bookauthors ON books.id = bookauthors.book_id
     INNER JOIN bookgenres ON books.id = bookgenres.book_id
     INNER JOIN userscollection ON books.id = userscollection.book_id
-    GROUP BY 1,2,3,4,5,6,7
-    HAVING userscollection.book_rank = $1
-    `;
+    GROUP BY 1,2,3,4,5,6,7,8
+    HAVING userscollection.book_rank = $2
+    ORDER BY userscollection.book_rank`;
 
-
-  pool.query(singleBookQuery, [id], (singleBookQueryErr, singleBookQueryResult) => {
+  pool.query(singleBookQuery, [userId, id], (singleBookQueryErr, singleBookQueryResult) => {
       if (singleBookQueryErr) {
-        console.log('/collection/:id GET request singleBookQueryErr', singleBookQueryErr);
+        console.log('/collection/:id GET request singleBookQueryErr:', singleBookQueryErr.stack);
+        res.status(503);
+        return;
       }
     
     const singleBook = singleBookQueryResult.rows[0];
-    console.log('sgb', singleBook);
+    console.log(singleBook);
 
     const notesQuery = `
     SELECT * FROM notes
-    WHERE user_id = ${userId} AND book_id = ${singleBook.book_id}
+    WHERE user_id = $1 AND book_id = $2
     ORDER BY id DESC;
     `;
 
-    pool.query(notesQuery, (notesQueryErr, notesQueryResult) => {
+    pool.query(notesQuery, [userId, singleBook.book_id], (notesQueryErr, notesQueryResult) => {
       if (notesQueryErr) {
-        console.log('/collection/:id GET request notesQueryErr', notesQueryErr);
+        console.log('/collection/:id GET request notesQueryErr', notesQueryErr.stack);
+        res.status(503);
+        return;
       }
 
       const userNotesArr = notesQueryResult.rows;
@@ -584,14 +589,14 @@ app.get('/collection/:id', checkAuth, (req, res) => {
   });
 });
 
-// Collection/:id - PUT Request. [Update user cover].
-app.put('/collection/:id', multerUpload.single('usercover'), (req, res) => {
-  console.log('/collection/:id PUT request came in! ---')
+// Collection/:id - PUT Request. [Update user book cover].
+app.post('/collection/:id/:bookrank_id', multerUpload.single('usercover'), (req, res) => {
+  console.log('/collection/:id/:bookrank_id PUT request came in! ---')
 
-  let collectionBookId = req.params.id;
-  let { userId } = req.cookies;
+  const { id, bookrank_id } = req.params;
+  const { filename } = req.file;
+  const { userId } = req.cookies;
 
-  // Have to find a way to upload the user_cover to the book_id.
   const insertCoverQuery = `
   WITH userbooksordered AS (
     SELECT 
@@ -599,32 +604,34 @@ app.put('/collection/:id', multerUpload.single('usercover'), (req, res) => {
     book_id,
     RANK() OVER (ORDER BY book_id) AS collection_book_id
   FROM collection
-  WHERE user_id = ${userId}
+  WHERE user_id = $1
   )
 
   UPDATE collection 
-  SET user_cover = $1
-  WHERE user_id = ${userId} AND book_id = (The real book_id, not the collection book id)
+  SET user_cover = $2
+  WHERE user_id = $1 AND book_id = $3
   RETURNING *`;
 
   pool
-   .query(insertCoverQuery, [req.file.filename])
+   .query(insertCoverQuery, [userId, filename, id])
    .then(result => {
       const insertCoverResults = result.rows;
       console.log('insertCoverQuery results: ---', insertCoverResults)
+
+      res.redirect(`/collection/${bookrank_id}`);
     })
    .catch(err => { 
-     res.status(503).send('Please try again :(');
+     res.status(503).render('error');
      console.log('/collection/:id POST Request query error: ---', err)
    });
 });
 
 // Collection/:book_id/pages - PUT Request. [Update page info of a book in user collection].
-app.put('/collection/:book_id/:bookrank_id', (req, res) => {
+app.post('/collection/:id/:bookrank_id/pages', (req, res) => {
 
-  console.log('/collection/:id/pages PUT request came in! ---')
+  console.log('/collection/:id/:bookrank_id/pages PUT request came in! ---')
 
-  const { book_id, bookrank_id } = req.params;
+  const { id, bookrank_id } = req.params;
   const { userId } = req.cookies;
   const { pagesCompleted, totalPages } = req.body;
 
@@ -636,7 +643,7 @@ app.put('/collection/:book_id/:bookrank_id', (req, res) => {
   WHERE user_id = $3 AND book_id = $4
   RETURNING *
   `
-  const values = [totalPages, pagesCompleted, userId, book_id]
+  const values = [totalPages, pagesCompleted, userId, id]
 
   pool
     .query(updatePagesQuery, values)

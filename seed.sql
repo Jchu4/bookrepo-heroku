@@ -7,15 +7,15 @@ VALUES
 
 INSERT INTO collection (user_id, book_id, user_cover, num_pages, pages_completed, date_added, date_completed)
 VALUES 
-  (1, 12, '', 157, 110, '2018-02-03', 'infinity'),
-  (1, 13, '', 112, 112, '2020-11-15', '2021-01-15'),
-  (2, 5, '', 253, 92, '2019-10-10', 'infinity'),
-  (2, 7, '', 336, 38, '2020-12-30', 'infinity'),
-  (2, 10 ,'', 681, 19, '2021-02-18', 'infinity'),
-  (3, 1, '', 368, 92, '2020-01-03', 'infinity'),
-  (3, 3, '', 291, 78, '2020-11-15', 'infinity'),
-  (3, 5, '', 253, 152, '2019-12-10', 'infinity'),
-  (3, 6, '', 264, 264, '2019-08-10', '2019-12-15');
+  (1, 12, 'https://m.media-amazon.com/images/I/413nm8JQ11L.jpg', 157, 110, '2018-02-03', 'infinity'),
+  (1, 13, 'https://images-na.ssl-images-amazon.com/images/I/31F7hR4hztL._SY291_BO1,204,203,200_QL40_ML2_.jpg', 112, 112, '2020-11-15', '2021-01-15'),
+  (2, 5, 'https://images.squarespace-cdn.com/content/v1/564a53ace4b0ef1eb2daff41/1524810192099-QZZKCRPMM2D2692XHZZG/ke17ZwdGBToddI8pDm48kICklUNFB7EJNlxLHLJAYcV7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UfYltZe-IEpAgU9jtQqUOcEJ6Rv2liazs--vysdkcEey6kSrJ3a5Sgz-k5JEO5jghA/Cover+Make+it+Stick.jpg', 253, 92, '2019-10-10', 'infinity'),
+  (2, 7, 'https://images-na.ssl-images-amazon.com/images/I/51z1ZaEn6sL._AC_SY400_.jpg', 336, 38, '2020-12-30', 'infinity'),
+  (2, 10 ,'https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1440657672l/46674._SY475_.jpg', 681, 19, '2021-02-18', 'infinity'),
+  (3, 1, 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/12_Rules_for_Life_Front_Cover_%282018_first_edition%29.jpg/800px-12_Rules_for_Life_Front_Cover_%282018_first_edition%29.jpg', 368, 92, '2020-01-03', 'infinity'),
+  (3, 3, 'https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1545128068l/43260847._SY475_.jpg', 291, 78, '2020-11-15', 'infinity'),
+  (3, 5, 'https://images.squarespace-cdn.com/content/v1/564a53ace4b0ef1eb2daff41/1524810192099-QZZKCRPMM2D2692XHZZG/ke17ZwdGBToddI8pDm48kICklUNFB7EJNlxLHLJAYcV7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UfYltZe-IEpAgU9jtQqUOcEJ6Rv2liazs--vysdkcEey6kSrJ3a5Sgz-k5JEO5jghA/Cover+Make+it+Stick.jpg', 253, 152, '2019-12-10', 'infinity'),
+  (3, 6, 'https://images-na.ssl-images-amazon.com/images/I/91pR9wKJ3zL.jpg', 264, 264, '2019-08-10', '2019-12-15');
 
 
 INSERT INTO notes (user_id, description, book_id, private, date)

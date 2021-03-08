@@ -45,7 +45,7 @@
                     </div>
 
                     <!-- Start of Form for Pages Edit  -->
-                    <form method="POST" action="/collection/<%=singleBook.book_id%>/<%=singleBook.book_rank%>?_method=PUT">
+                    <form method="POST" action="/collection/<%=singleBook.book_id%>/<%=singleBook.book_rank%>/pages?_method=PUT">
                       <div class="modal-body">
                         <div class="container ">
                           <div class="row">
@@ -82,7 +82,11 @@
               <div class="row">
                 <!-- Book Image -->
                 <div class="col d-flex justify-content-center">
-                  <img class="library-img shadow-sm mx-3" src="<%=singleBook.book_cover%>" />
+                  <% if (singleBook.user_cover.includes("http")) { %>
+                    <img class="library-img shadow-sm mx-3" src="<%=singleBook.user_cover%>" />
+                  <% } else {  %>
+                    <img class="library-img shadow-sm mx-3" src="/uploads/<%=singleBook.user_cover%>" />
+                  <% }  %>
                 </div>
               </div> 
 
@@ -110,7 +114,7 @@
                     </div>
 
                     <!-- Start of Form for User Cover Upload -->
-                    <form method="POST" action="/collection/<%=singleBook.book_rank%>?_method=PUT" enctype="multipart/form-data">
+                    <form method="POST" action="/collection/<%=singleBook.book_id%>/<%=singleBook.book_rank%>" enctype="multipart/form-data">
                       <div class="modal-body text-left">
                         <label for="usercover" class="font-weight-light">Book Cover:</label><br>
                         <input type="file" name="usercover" />
