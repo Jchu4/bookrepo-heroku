@@ -85,6 +85,10 @@
   border-radius: 25px;
 }
 
+#btn-copy {
+  border-radius: 25px;
+}
+
 #remove-focus:focus {
   outline: none;
   box-shadow: none;
@@ -105,6 +109,16 @@
   background-size: cover;
   height: 1200px;
   color: white;
+}
+
+#invite-container {
+  height: 1200px;
+  width: auto;
+}
+
+.invite-bg {
+  background: url(/public/invite-bg.jpg) no-repeat;
+  background-size: 100% 100%;
 }
 
 .error {

@@ -758,6 +758,12 @@ app.put('/notes/:note_id/:bookrank_id', (req, res) => {
     .catch(err => console.log('editNoteQuery error: ---', err));
 });
 
+app.get('/invite', (req, res) => {
+  console.log('/invite GET request came in!')
+
+    res.render('invite-friend');
+  });
+
 // Start socket and listen on given port.
 app.listen(PORT, (err) => {
   if (err) {
