@@ -114,7 +114,7 @@
                     </div>
 
                     <!-- FORM 2: Start of Form for User Cover Upload -->
-                    <form method="POST" action="/collection/<%=singleBook.book_id%>/<%=singleBook.book_rank%>" enctype="multipart/form-data">
+                    <form method="POST" action="/collection/<%=singleBook.book_id%>/<%=singleBook.book_rank%>?_method=PUT" enctype="multipart/form-data">
                       <div class="modal-body text-left">
                         <label for="usercover" class="font-weight-light">Book Cover:</label><br>
                         <input type="file" name="usercover" />

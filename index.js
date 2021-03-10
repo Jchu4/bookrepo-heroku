@@ -31,6 +31,7 @@ if (process.env.ENV === 'PRODUCTION') {
   };
 }
 
+
 // Create new Pool with above conditions.
 const pool = new Pool(poolConfigs);
 // Set name of upload directory.
@@ -117,7 +118,6 @@ app.post('/signup', (req, res) => {
   pool
   .query(insertUserQuery, values)
   .then(result => {
-    console.log('insertUserQuery results: ---', result.rows);
     const newUser = result.rows[0];
 
     res.render('welcome', { newUser })
@@ -177,7 +177,6 @@ app.post('/login', (req, res) => {
       res.redirect('/collection')
     })
     .catch(err => {
-      console.log('Error when making request to /login POST route', err.stack);
       res.status(503).send(result.rows);
       return;
     })
@@ -365,7 +364,7 @@ app.get('/collection', checkAuth, (req, res) => {
   let collectionArr, booksAuthors, noteCounts;
 
   const collectionQuery = `
-  SELECT * , RANK() OVER (ORDER BY id ASC) AS book_rank
+  SELECT *,  RANK() OVER (ORDER BY id ASC) AS book_rank
   FROM collection
   WHERE user_id = ${userId}
   `
@@ -373,6 +372,10 @@ app.get('/collection', checkAuth, (req, res) => {
   pool.query(collectionQuery)
     .then(collectionResult => { 
       collectionArr = collectionResult.rows;
+
+      if (collectionArr.length === 0) {
+        throw new Error('Empty collection');
+      }
 
       // Create an array of book_ids which will go in the next query.
       const bookIdArr = collectionArr.map(book => book.book_id)
@@ -388,7 +391,9 @@ app.get('/collection', checkAuth, (req, res) => {
       INNER JOIN book_authors ON books.id = book_authors.book_id
       WHERE books.id IN (${[...bookIdArr]})
       `;
-    
+      
+      console.log('test', bookQuery);
+
       return pool.query(bookQuery)
     })
     .then(booksResult => {
@@ -453,7 +458,6 @@ app.get('/collection', checkAuth, (req, res) => {
     })
     .then(bookInfoResult => {
       const bookInfo = bookInfoResult.rows;
-      console.log('bookie', bookInfo)
 
       // Add respective book info to the user's collection.
       for (let i = 0; i < collectionArr.length; i++) {
@@ -490,8 +494,14 @@ app.get('/collection', checkAuth, (req, res) => {
         res.render('collection-table', { collectionArr });
       }
     })
-    .catch(err => {
-      res.render('empty-collection-table');
+    // This catch is for anything bad that can happen in the .then()s.
+    .catch(err => {      
+      if (err.message === 'Empty collection') {
+        // This is only for when the collection is empty.
+        res.render('empty-collection-table');
+      } else {
+        res.render('error')
+      }
     })
   });
 
@@ -501,8 +511,6 @@ app.delete('/collection/:id', (req, res) => {
 
   const { userId } = req.cookies;
   const bookId = req.params.id;
-
-  console.log('EHHH book_id ----:', bookId);
 
   const deleteBookQuery = `
   DELETE FROM collection
@@ -605,7 +613,6 @@ app.get('/collection/:id', checkAuth, (req, res) => {
       }
 
       const userNotesArr = notesQueryResult.rows;
-      console.log("WOOOW LOOK AT THE NOTES", userNotesArr);
 
       // Pass in the pages completed perecentage.
       singleBook.pct_complete = Math.round((singleBook.pages_completed / singleBook.num_pages) * 100);
@@ -616,7 +623,7 @@ app.get('/collection/:id', checkAuth, (req, res) => {
 });
 
 // Collection/:id - PUT Request. [Update user book cover].
-app.post('/collection/:id/:bookrank_id', multerUpload.single('usercover'), (req, res) => {
+app.put('/collection/:id/:bookrank_id', multerUpload.single('usercover'), (req, res) => {
   console.log('/collection/:id/:bookrank_id PUT request came in! ---')
 
   const { id, bookrank_id } = req.params;
@@ -654,7 +661,6 @@ app.post('/collection/:id/:bookrank_id', multerUpload.single('usercover'), (req,
 
 // Collection/:book_id/pages - PUT Request. [Update page info of a book in user collection].
 app.put('/collection/:id/:bookrank_id/pages', (req, res) => {
-
   console.log('/collection/:id/:bookrank_id/pages PUT request came in! ---')
 
   const { id, bookrank_id } = req.params;
@@ -701,8 +707,6 @@ app.post('/notes/:book_id/:bookrank_id', (req, res) => {
     if (err) {
       console.log('insertNotesQuery error: ---', err)
     }
-    console.log('insertNotesQuery results: ---', result.rows)
-
     res.redirect(`/collection/${bookrank_id}#my-notes`)
   });
 });
@@ -722,7 +726,6 @@ app.delete('/notes/:note_id/:bookrank_id', (req, res) => {
   pool
     .query(deleteNoteQuery)
     .then(result => {
-      console.log('Note sucessfully deleted.');
       res.redirect(`/collection/${bookrank_id}#my-notes`)
     })
     .catch(err => console.log('notes/:note_id DELETE error: ---', err));
@@ -752,7 +755,6 @@ app.put('/notes/:note_id/:bookrank_id', (req, res) => {
   pool
     .query(editNoteQuery, values)
     .then(result => {
-      console.log('editNoteQuery results: ---', result.rows);
       res.redirect(`/collection/${bookrank_id}#my-notes`);
     })
     .catch(err => console.log('editNoteQuery error: ---', err));
@@ -760,7 +762,6 @@ app.put('/notes/:note_id/:bookrank_id', (req, res) => {
 
 app.get('/invite', (req, res) => {
   console.log('/invite GET request came in!')
-
     res.render('invite-friend');
   });
 
