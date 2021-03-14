@@ -12,15 +12,16 @@ import multerS3 from 'multer-s3';
 // Init DB connection.
 const { Pool } = pg;
 
-// Configure libraries.
-const s3 = new aws.S3({
-  accessKeyId: process.env.ACCESSKEYID,
-  secretAccessKey: process.env.SECRETACCESSKEY,
-});
-
 // Separate DB connection configs for production vs non-production environments.
 let poolConfigs;
-if (process.env.ENV === 'PRODUCTION') {
+if (process.env.DATABASE_URL) {
+  poolConfigs = {
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false
+    }
+  }
+} else (process.env.ENV === 'PRODUCTION') {
   // Set up Remote Postgres server.
   poolConfigs = {
     user: 'postgres',
@@ -28,23 +29,9 @@ if (process.env.ENV === 'PRODUCTION') {
     host: 'localhost',
     database: 'bookrepo',
     port: 5432,
-  };
-} else if (process.env.DATABASE_URL) {
-  pgConnectionConfigs = {
-    connectionString: process.env.DATABASE_URL,
-    ssl: {
-      rejectUnauthorized: false
-    }
   }
-} else {
-  // Set up Local Postgres server.
-  poolConfigs = {
-    user: 'jchua',
-    host: 'localhost',
-    database: 'bookrepo',
-    port: 5432,
-  };
 }
+
 
 // Create new Pool with above conditions.
 const pool = new Pool(poolConfigs);
@@ -53,6 +40,28 @@ const pool = new Pool(poolConfigs);
 const app = express();
 const PORT = process.argv[2] || 3004;
 const SALT = process.env['SALT'];
+
+// Configure S3.
+const s3 = new aws.S3({
+  accessKeyId: process.env.ACCESSKEYID,
+  secretAccessKey: process.env.SECRETACCESSKEY,
+});
+
+// Configure multerUpload directoryr.
+const multerUpload = multer({
+  storage: multerS3({
+    s3,
+    bucket: 'bucky-bookrepo',
+    acl: 'public-read',
+    metadata: (request, file, callback) => {
+      callback(null, { fieldName: file.fieldname });
+    },
+    key: (request, file, callback) => {
+      callback(null, Date.now().toString());
+    },
+  }),
+});
+
 
 // Configure Express settings.
 app.set('view engine', 'ejs'); // Set view engine for 'ejs' templates.
@@ -96,20 +105,6 @@ const checkAuth = (req, res, next) => {
   next();
 };
 
-// Configure multerUpload directoryr.
-const multerUpload = multer({
-  storage: multerS3({
-    s3,
-    bucket: 'bucky-bookrepo',
-    acl: 'public-read',
-    metadata: (request, file, callback) => {
-      callback(null, { fieldName: file.fieldname });
-    },
-    key: (request, file, callback) => {
-      callback(null, Date.now().toString());
-    },
-  }),
-});
 
 // /Root - GET Request. [Ad Page to prompt user to sign up (if not logged in)]. 
 app.get('/', (req, res) => {
