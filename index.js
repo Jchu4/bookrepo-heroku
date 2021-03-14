@@ -39,7 +39,7 @@ const multerUpload = multer({ dest: 'uploads/' });
 
 // Init Express.
 const app = express();
-const PORT = process.argv[2];
+const PORT = process.argv[2] || 3004;
 const SALT = process.env['SALT'];
 
 // Configure Express settings.
@@ -616,6 +616,8 @@ app.get('/collection/:id', checkAuth, (req, res) => {
 
       // Pass in the pages completed perecentage.
       singleBook.pct_complete = Math.round((singleBook.pages_completed / singleBook.num_pages) * 100);
+
+      singleBook.pct_complete = (isNaN(Number(singleBook.pct_complete)) === true) ? 0 : singleBook.pct_complete;
 
       res.render('collection-id', { singleBook, userNotesArr })
     });
