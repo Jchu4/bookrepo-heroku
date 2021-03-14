@@ -48,8 +48,6 @@ if (process.env.ENV === 'PRODUCTION') {
 
 // Create new Pool with above conditions.
 const pool = new Pool(poolConfigs);
-// Set name of upload directory.
-const multerUpload = multer({ dest: 'uploads/' });
 
 // Init Express.
 const app = express();
@@ -98,7 +96,7 @@ const checkAuth = (req, res, next) => {
   next();
 };
 
-// Configure Multer upload.
+// Configure multerUpload directoryr.
 const multerUpload = multer({
   storage: multerS3({
     s3,
