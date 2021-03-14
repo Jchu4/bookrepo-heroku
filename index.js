@@ -20,8 +20,8 @@ if (process.env.DATABASE_URL) {
     ssl: {
       rejectUnauthorized: false
     }
-  }
-} else (process.env.ENV === 'PRODUCTION') {
+  };
+} else {
   // Set up Remote Postgres server.
   poolConfigs = {
     user: 'postgres',
