@@ -6,9 +6,17 @@ import cookieParser from 'cookie-parser';
 import methodOverride from 'method-override';
 import moment from 'moment';
 import multer from 'multer';
+import aws from 'aws-sdk';
+import multerS3 from 'multer-s3';
 
 // Init DB connection.
 const { Pool } = pg;
+
+// Configure libraries.
+const s3 = new aws.S3({
+  accessKeyId: process.env.ACCESSKEYID,
+  secretAccessKey: process.env.SECRETACCESSKEY,
+});
 
 // Separate DB connection configs for production vs non-production environments.
 let poolConfigs;
@@ -21,6 +29,13 @@ if (process.env.ENV === 'PRODUCTION') {
     database: 'bookrepo',
     port: 5432,
   };
+} else if (process.env.DATABASE_URL) {
+  pgConnectionConfigs = {
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false
+    }
+  }
 } else {
   // Set up Local Postgres server.
   poolConfigs = {
@@ -30,7 +45,6 @@ if (process.env.ENV === 'PRODUCTION') {
     port: 5432,
   };
 }
-
 
 // Create new Pool with above conditions.
 const pool = new Pool(poolConfigs);
@@ -83,6 +97,21 @@ const checkAuth = (req, res, next) => {
   }
   next();
 };
+
+// Configure Multer upload.
+const multerUpload = multer({
+  storage: multerS3({
+    s3,
+    bucket: 'bucky-bookrepo',
+    acl: 'public-read',
+    metadata: (request, file, callback) => {
+      callback(null, { fieldName: file.fieldname });
+    },
+    key: (request, file, callback) => {
+      callback(null, Date.now().toString());
+    },
+  }),
+});
 
 // /Root - GET Request. [Ad Page to prompt user to sign up (if not logged in)]. 
 app.get('/', (req, res) => {
