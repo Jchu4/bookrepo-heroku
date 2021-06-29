@@ -14,28 +14,29 @@ const { Pool } = pg;
 
 // Separate DB connection configs for production vs non-production environments.
 let poolConfigs;
-if (process.env.DATABASE_URL) {
+// if (process.env.DATABASE_URL) {
+//   poolConfigs = {
+//     connectionString: process.env.DATABASE_URL,
+//     ssl: {
+//       rejectUnauthorized: false
+//     }
+//   };
+// } else 
+if (process.env.ENV === 'PRODUCTION') {
   poolConfigs = {
-    connectionString: process.env.DATABASE_URL,
-    ssl: {
-      rejectUnauthorized: false
-    }
-  };
-} else if (process.env.ENV === 'PRODUCTION') {
-  poolConfigs = {
-    user: "postgres",
-    password: process.env.DB_password,
-    host: "localhost",
-    database: "bookrepo",
+    user: 'postgres',
+    password: process.env.DB_PASSWORD,
+    host: 'localhost',
+    database: 'bookrepo',
     port: process.env.PORT || 5432,
   };
 } else {
   // Set up Remote Postgres server.
   poolConfigs = {
-    user: 'jchua',
+    user: process.env.USER,
     host: 'localhost',
     database: 'bookrepo',
-    port: 5432,
+    port: 5432, 
   }
 }
 
