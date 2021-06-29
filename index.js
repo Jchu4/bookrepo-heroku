@@ -22,13 +22,13 @@ let poolConfigs;
 //     }
 //   };
 // } else 
-if (process.env.ENV === 'PRODUCTION') {
+if (process.env.ENV === 'production') {
   poolConfigs = {
     user: 'postgres',
     password: process.env.DB_PASSWORD,
     host: 'localhost',
     database: 'bookrepo',
-    port: process.env.PORT || 5432,
+    port: 5432,
   };
 } else {
   // Set up Remote Postgres server.
